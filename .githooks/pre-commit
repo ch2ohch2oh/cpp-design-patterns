@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Enforce formatting on commit.
+./scripts/format.sh
+
+patterns=(
+  '*.c' '*.cc' '*.cpp' '*.cxx'
+  '*.h' '*.hh' '*.hpp' '*.hxx'
+)
+
+if git diff --name-only -- "${patterns[@]}" | grep -q .; then
+  echo "Formatting changed files. Please stage the formatted changes and re-commit." >&2
+  exit 1
+fi
+
