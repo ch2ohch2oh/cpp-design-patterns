@@ -12,6 +12,10 @@ This repo contains tiny, realistic examples that demonstrate:
 8. Facade
 9. Adapter
 10. Strategy
+11. Factory Method
+12. Abstract Factory
+13. Proxy
+14. Decorator
 
 ## Build
 
@@ -33,6 +37,10 @@ cmake --build build -j
 ./build/examples/facade/facade_example
 ./build/examples/adapter/adapter_example
 ./build/examples/strategy/strategy_example
+./build/examples/factory_method/factory_method_example
+./build/examples/abstract_factory/abstract_factory_example
+./build/examples/proxy/proxy_example
+./build/examples/decorator/decorator_example
 ```
 
 ## Format
