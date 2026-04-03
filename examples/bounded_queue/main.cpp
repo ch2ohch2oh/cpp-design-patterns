@@ -19,9 +19,31 @@
 #include <optional>
 #include <queue>
 #include <stdexcept>
+#if __has_include(<syncstream>)
+#include <syncstream>
+#endif
 #include <thread>
 #include <utility>
 #include <vector>
+
+namespace {
+std::mutex& log_mutex() {
+    static std::mutex mu;
+    return mu;
+}
+
+template <class... Ts>
+void log_line(Ts&&... parts) {
+#if defined(__cpp_lib_syncbuf) && (__cpp_lib_syncbuf >= 201803L)
+    std::osyncstream out(std::cout);
+    ((out << std::forward<Ts>(parts)), ...) << "\n";
+#else
+    // Note: the mutex must be shared across all template instantiations to prevent interleaving.
+    std::lock_guard<std::mutex> lock(log_mutex());
+    ((std::cout << std::forward<Ts>(parts)), ...) << "\n";
+#endif
+}
+}  // namespace
 
 template <class T>
 class BoundedQueue {
@@ -83,13 +105,17 @@ struct WorkItem {
 };
 
 static void producer(BoundedQueue<WorkItem>& q, int producer_id, int items) {
+    log_line("producer-", producer_id, " start");
     for (int i = 0; i < items; ++i) {
         int req_id = producer_id * 1000 + i;
         if (!q.push(WorkItem{.request_id = req_id})) {
+            log_line("producer-", producer_id, " stopped (queue closed)");
             return;
         }
+        log_line("producer-", producer_id, " enqueued req=", req_id);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    log_line("producer-", producer_id, " done");
 }
 
 static void consumer(BoundedQueue<WorkItem>& q, int consumer_id, std::atomic<int>& processed) {
@@ -99,13 +125,13 @@ static void consumer(BoundedQueue<WorkItem>& q, int consumer_id, std::atomic<int
             return;
         }
         ++processed;
-        std::cout << "worker-" << consumer_id << " handled req=" << item->request_id << "\n";
+        log_line("worker-", consumer_id, " handled req=", item->request_id);
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 }
 
 int main() {
-    std::cout << "Bounded queue example: backpressure under load.\n";
+    log_line("Bounded queue example: backpressure under load.");
 
     BoundedQueue<WorkItem> q(4);  // small capacity to make backpressure observable
     std::atomic<int> processed{0};
@@ -123,5 +149,5 @@ int main() {
     c1.join();
     c2.join();
 
-    std::cout << "Processed " << processed.load() << " items.\n";
+    log_line("Processed ", processed.load(), " items.");
 }
