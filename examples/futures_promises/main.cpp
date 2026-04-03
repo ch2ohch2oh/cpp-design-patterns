@@ -7,7 +7,7 @@
 //
 // This example:
 // - Runs "cache" and "db" lookups concurrently.
-// - Uses a promise to return the first successful result (or propagate an error).
+// - Uses a promise to return the first successful result (or the last error if both fail).
 // - Demonstrates `wait_for()` as a building block for timeouts.
 
 #include <atomic>
@@ -35,46 +35,92 @@ static std::string db_lookup(int user_id) {
     return user_id == 42 ? "Ada (db)" : "unknown (db)";
 }
 
-template <class Fn>
-static std::thread run_and_set_first(std::shared_ptr<std::atomic<bool>> done,
-                                     std::shared_ptr<std::promise<std::string>> out, Fn fn) {
-    return std::thread(
-        [done = std::move(done), out = std::move(out), fn = std::move(fn)]() mutable {
-            try {
-                std::string v = fn();
-                if (!done->exchange(true)) {
-                    out->set_value(std::move(v));
+struct FirstSuccess {
+    std::promise<std::string> promise;
+    std::atomic<bool> done{false};
+    std::atomic<int> remaining{0};
+    std::mutex mu;
+    std::exception_ptr last_error;
+
+    explicit FirstSuccess(int n) : remaining(n) {}
+
+    void try_set_value(std::string v) {
+        if (!done.exchange(true)) {
+            promise.set_value(std::move(v));
+        }
+    }
+
+    void report_failure(std::exception_ptr e) {
+        // Record this failure. We keep only the "last" error for simplicity (any error is fine
+        // to return once we've established that all lookups failed).
+        {
+            std::lock_guard<std::mutex> lock(mu);
+            last_error = std::move(e);
+        }
+
+        // `remaining` tracks how many outstanding operations might still be able to succeed.
+        // Only failures decrement it.
+        //
+        // If this was the *last failure* (i.e. `remaining` transitions 1 -> 0), then all lookups
+        // have failed, so we should complete the promise with an error.
+        //
+        // Important: we still must check `done` because a successful lookup might have already
+        // fulfilled the promise. In that case, the last failing thread must NOT try to
+        // `set_exception()` (promise already satisfied).
+        if (remaining.fetch_sub(1) == 1) {
+            if (!done.exchange(true)) {
+                std::exception_ptr err;
+                {
+                    std::lock_guard<std::mutex> lock(mu);
+                    err = last_error
+                              ? last_error
+                              : std::make_exception_ptr(std::runtime_error("all lookups failed"));
                 }
-            } catch (...) {
-                if (!done->exchange(true)) {
-                    out->set_exception(std::current_exception());
-                }
+                promise.set_exception(std::move(err));
             }
-        });
+        }
+    }
+};
+
+template <class Fn>
+static std::thread run_lookup(std::shared_ptr<FirstSuccess> state, Fn fn) {
+    return std::thread([state = std::move(state), fn = std::move(fn)]() mutable {
+        try {
+            state->try_set_value(fn());
+        } catch (...) {
+            state->report_failure(std::current_exception());
+        }
+    });
 }
 
-int main() {
-    std::cout << "Futures/promises example: race cache vs db.\n";
+static void run_lookup_demo(int user_id) {
+    auto state = std::make_shared<FirstSuccess>(2);
+    std::future<std::string> result = state->promise.get_future();
 
-    auto done = std::make_shared<std::atomic<bool>>(false);
-    auto p = std::make_shared<std::promise<std::string>>();
-    std::future<std::string> result = p->get_future();
-
-    int user_id = 42;
-    std::thread t1 = run_and_set_first(done, p, [=] { return cache_lookup(user_id); });
-    std::thread t2 = run_and_set_first(done, p, [=] { return db_lookup(user_id); });
+    std::thread t1 = run_lookup(state, [=] { return cache_lookup(user_id); });
+    std::thread t2 = run_lookup(state, [=] { return db_lookup(user_id); });
 
     // Timeout building block: don't block forever.
     if (result.wait_for(std::chrono::milliseconds(200)) != std::future_status::ready) {
-        std::cout << "Timed out waiting for user lookup.\n";
+        std::cout << "Timed out waiting for user lookup (user=" << user_id << ").\n";
     } else {
         try {
-            std::cout << "User name: " << result.get() << "\n";
+            std::cout << "User " << user_id << " name: " << result.get() << "\n";
         } catch (const std::exception& e) {
-            std::cout << "Lookup failed: " << e.what() << "\n";
+            std::cout << "User " << user_id << " lookup failed: " << e.what() << "\n";
         }
     }
 
     t1.join();
     t2.join();
+}
+
+int main() {
+    std::cout << "Futures/promises example: race cache vs db.\n";
+
+    // Demonstrate both paths:
+    // - user=42: cache hit wins quickly
+    // - user=7: cache misses; db succeeds later, so "first success" is the db answer
+    run_lookup_demo(42);
+    run_lookup_demo(7);
 }
