@@ -9,4 +9,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(examples/raii)
 add_subdirectory(examples/smart_pointers)
 add_subdirectory(examples/rule_of_0_5)
-
+add_subdirectory(examples/thread_pool)
+add_subdirectory(examples/bounded_queue)
+add_subdirectory(examples/futures_promises)
