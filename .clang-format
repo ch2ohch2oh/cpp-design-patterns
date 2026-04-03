@@ -14,4 +14,10 @@ IncludeBlocks: Regroup
 
 PointerAlignment: Left
 DerivePointerAlignment: false
+
+# Avoid one-line `for (...) body;` loops (helps readability in examples).
+AllowShortLoopsOnASingleLine: false
+
+# Always use braces for control statements (if/for/while/do), even for single statements.
+InsertBraces: true
 ...

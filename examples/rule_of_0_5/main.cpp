@@ -30,9 +30,13 @@ class ResponseBuffer {
     std::string join() const {
         std::string out;
         std::size_t total = 0;
-        for (const auto& c : chunks_) total += c.size();
+        for (const auto& c : chunks_) {
+            total += c.size();
+        }
         out.reserve(total);
-        for (const auto& c : chunks_) out += c;
+        for (const auto& c : chunks_) {
+            out += c;
+        }
         return out;
     }
 
@@ -46,7 +50,9 @@ class Arena {
    public:
     explicit Arena(std::size_t bytes)
         : size_(bytes), data_(bytes == 0 ? nullptr : static_cast<char*>(std::malloc(bytes))) {
-        if (bytes != 0 && !data_) throw std::bad_alloc();
+        if (bytes != 0 && !data_) {
+            throw std::bad_alloc();
+        }
     }
 
     // (1) Destructor: releases the owned resource.
@@ -56,13 +62,19 @@ class Arena {
     Arena(const Arena& other)
         : size_(other.size_),
           data_(other.size_ == 0 ? nullptr : static_cast<char*>(std::malloc(other.size_))) {
-        if (other.size_ != 0 && !data_) throw std::bad_alloc();
-        if (size_ != 0) std::memcpy(data_, other.data_, size_);
+        if (other.size_ != 0 && !data_) {
+            throw std::bad_alloc();
+        }
+        if (size_ != 0) {
+            std::memcpy(data_, other.data_, size_);
+        }
     }
 
     // (3) Copy assignment: use copy-and-swap for strong exception safety.
     Arena& operator=(const Arena& other) {
-        if (this == &other) return *this;
+        if (this == &other) {
+            return *this;
+        }
         Arena tmp(other);
         swap(tmp);
         return *this;
@@ -76,7 +88,9 @@ class Arena {
 
     // (5) Move assignment: release current resource, then take ownership.
     Arena& operator=(Arena&& other) noexcept {
-        if (this == &other) return *this;
+        if (this == &other) {
+            return *this;
+        }
         std::free(data_);
         size_ = other.size_;
         data_ = other.data_;
@@ -86,12 +100,16 @@ class Arena {
     }
 
     void write(std::size_t offset, std::string_view s) {
-        if (offset + s.size() > size_) throw std::out_of_range("arena write");
+        if (offset + s.size() > size_) {
+            throw std::out_of_range("arena write");
+        }
         std::memcpy(data_ + offset, s.data(), s.size());
     }
 
     std::string read(std::size_t offset, std::size_t len) const {
-        if (offset + len > size_) throw std::out_of_range("arena read");
+        if (offset + len > size_) {
+            throw std::out_of_range("arena read");
+        }
         return std::string(data_ + offset, data_ + offset + len);
     }
 

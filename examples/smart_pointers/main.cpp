@@ -110,7 +110,9 @@ static std::unique_ptr<Response> dispatch(const RequestContext& ctx) {
     };
 
     auto it = routes.find(ctx.request().path);
-    if (it == routes.end()) return handle_not_found(ctx);
+    if (it == routes.end()) {
+        return handle_not_found(ctx);
+    }
     // Returning a `unique_ptr` makes it impossible to accidentally "share" a response
     // across requests without explicitly opting in.
     return it->second(ctx);
