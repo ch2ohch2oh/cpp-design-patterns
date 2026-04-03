@@ -45,8 +45,8 @@ class ResponseBuffer {
 class Arena {
    public:
     explicit Arena(std::size_t bytes)
-        : size_(bytes), data_(static_cast<char*>(std::malloc(bytes))) {
-        if (!data_) throw std::bad_alloc();
+        : size_(bytes), data_(bytes == 0 ? nullptr : static_cast<char*>(std::malloc(bytes))) {
+        if (bytes != 0 && !data_) throw std::bad_alloc();
     }
 
     // (1) Destructor: releases the owned resource.
@@ -54,9 +54,10 @@ class Arena {
 
     // (2) Copy constructor: deep-copy to avoid double-free.
     Arena(const Arena& other)
-        : size_(other.size_), data_(static_cast<char*>(std::malloc(other.size_))) {
-        if (!data_) throw std::bad_alloc();
-        std::memcpy(data_, other.data_, size_);
+        : size_(other.size_),
+          data_(other.size_ == 0 ? nullptr : static_cast<char*>(std::malloc(other.size_))) {
+        if (other.size_ != 0 && !data_) throw std::bad_alloc();
+        if (size_ != 0) std::memcpy(data_, other.data_, size_);
     }
 
     // (3) Copy assignment: use copy-and-swap for strong exception safety.
