@@ -10,6 +10,19 @@
 // - A reactor is the more specific I/O pattern built on that loop:
 //   it waits for descriptor readiness and routes each ready source to its handler.
 //
+// A realistic reactor loop is still mostly about I/O readiness. The useful work is that one
+// thread can manage many connections/timers/wakeup signals at once, then hand off expensive
+// application work elsewhere.
+//
+// Typical shape:
+//   wait for readiness on sockets/timers/wakeup fd
+//     -> accept new connections
+//     -> read ready sockets
+//     -> parse frames / update connection state
+//     -> hand CPU-heavy work to a thread pool if needed
+//     -> flush pending writes on writable sockets
+//     -> close errored / timed-out / EOF connections
+//
 // This example:
 // - Creates two pipes that stand in for independent event sources.
 // - Uses `poll()` to wait until either source becomes readable.
