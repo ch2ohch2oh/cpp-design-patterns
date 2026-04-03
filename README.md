@@ -9,6 +9,9 @@ This repo contains tiny, realistic examples that demonstrate:
 5. Producer–consumer (bounded queue)
 6. Futures/promises (task-based async)
 7. Reactor (event loop)
+8. Facade
+9. Adapter
+10. Strategy
 
 ## Build
 
@@ -27,6 +30,9 @@ cmake --build build -j
 ./build/examples/bounded_queue/bounded_queue_example
 ./build/examples/futures_promises/futures_promises_example
 ./build/examples/reactor/reactor_example
+./build/examples/facade/facade_example
+./build/examples/adapter/adapter_example
+./build/examples/strategy/strategy_example
 ```
 
 ## Format
