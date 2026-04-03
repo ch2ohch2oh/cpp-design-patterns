@@ -15,7 +15,6 @@
 #include <cstddef>
 #include <functional>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -25,18 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace {
-std::mutex& log_mutex() {
-    static std::mutex mu;
-    return mu;
-}
-
-template <class... Ts>
-void log_line(Ts&&... parts) {
-    std::lock_guard<std::mutex> lock(log_mutex());
-    ((std::cout << std::forward<Ts>(parts)), ...) << "\n";
-}
-}  // namespace
+#include "../common/log.h"
 
 class ThreadPool {
    public:
@@ -124,7 +112,7 @@ class ThreadPool {
     using Job = std::function<void()>;
 
     void worker_loop(std::size_t worker_id) {
-        log_line("[worker-", worker_id, "] start");
+        examples::log_line("[worker-", worker_id, "] start");
         for (;;) {
             Job job;
             {
@@ -137,7 +125,7 @@ class ThreadPool {
                 // returning. The predicate form safely handles spurious wakeups.
                 cv_.wait(lock, [this] { return stopping_ || !queue_.empty(); });
                 if (stopping_ && queue_.empty()) {
-                    log_line("[worker-", worker_id, "] stop");
+                    examples::log_line("[worker-", worker_id, "] stop");
                     return;
                 }
                 // Move one job out while holding the mutex, then run it outside the lock to
@@ -145,7 +133,7 @@ class ThreadPool {
                 job = std::move(queue_.front());
                 queue_.pop();
             }
-            log_line("[worker-", worker_id, "] run job");
+            examples::log_line("[worker-", worker_id, "] run job");
             job();
         }
     }
@@ -167,7 +155,7 @@ static int expensive_parse(int request_id) {
 }
 
 int main() {
-    std::cout << "Thread pool example: fan-out parsing stage.\n";
+    examples::log_line("Thread pool example: fan-out parsing stage.");
 
     ThreadPool pool(4);
 
@@ -182,5 +170,5 @@ int main() {
     for (auto& f : results) {
         total += f.get();
     }
-    std::cout << "Processed 10 requests; checksum=" << total << "\n";
+    examples::log_line("Processed 10 requests; checksum=", total);
 }

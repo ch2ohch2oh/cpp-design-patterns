@@ -14,13 +14,14 @@
 #include <chrono>
 #include <exception>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <utility>
+
+#include "../common/log.h"
 
 static std::string cache_lookup(int user_id) {
     std::this_thread::sleep_for(std::chrono::milliseconds(25));
@@ -102,12 +103,12 @@ static void run_lookup_demo(int user_id) {
 
     // Timeout building block: don't block forever.
     if (result.wait_for(std::chrono::milliseconds(200)) != std::future_status::ready) {
-        std::cout << "Timed out waiting for user lookup (user=" << user_id << ").\n";
+        examples::log_line("Timed out waiting for user lookup (user=", user_id, ").");
     } else {
         try {
-            std::cout << "User " << user_id << " name: " << result.get() << "\n";
+            examples::log_line("User ", user_id, " name: ", result.get());
         } catch (const std::exception& e) {
-            std::cout << "User " << user_id << " lookup failed: " << e.what() << "\n";
+            examples::log_line("User ", user_id, " lookup failed: ", e.what());
         }
     }
 
@@ -116,7 +117,7 @@ static void run_lookup_demo(int user_id) {
 }
 
 int main() {
-    std::cout << "Futures/promises example: race cache vs db.\n";
+    examples::log_line("Futures/promises example: race cache vs db.");
 
     // Demonstrate both paths:
     // - user=42: cache hit wins quickly

@@ -8,6 +8,7 @@ This repo contains tiny, realistic examples that demonstrate:
 4. Thread pool / work queue
 5. Producer–consumer (bounded queue)
 6. Futures/promises (task-based async)
+7. Reactor (event loop)
 
 ## Build
 
@@ -25,6 +26,7 @@ cmake --build build -j
 ./build/examples/thread_pool/thread_pool_example
 ./build/examples/bounded_queue/bounded_queue_example
 ./build/examples/futures_promises/futures_promises_example
+./build/examples/reactor/reactor_example
 ```
 
 ## Format
