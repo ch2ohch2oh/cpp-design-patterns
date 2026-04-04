@@ -16,6 +16,9 @@ This repo contains tiny, realistic examples that demonstrate:
 12. Abstract Factory
 13. Proxy
 14. Decorator
+15. Type erasure
+16. Observer (pub/sub)
+17. State
 
 ## Build
 
@@ -41,6 +44,9 @@ cmake --build build -j
 ./build/examples/abstract_factory/abstract_factory_example
 ./build/examples/proxy/proxy_example
 ./build/examples/decorator/decorator_example
+./build/examples/type_erasure/type_erasure_example
+./build/examples/observer/observer_example
+./build/examples/state/state_example
 ```
 
 ## Format
