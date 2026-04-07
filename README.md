@@ -31,7 +31,7 @@ Tiny, realistic C++20 examples of common backend patterns and design patterns, e
 | [x] | 17 | [State](examples/state) | GoF (Behavioral) | Connection/session/protocol state machines without giant `switch`. |
 | [ ] | 18 | Command | GoF (Behavioral) | Queueable jobs; background tasks; audit/redo semantics. |
 | [ ] | 19 | Pimpl | C++ idiom | Cuts rebuild times; hides heavy deps in service libraries. |
-| [ ] | 20 | Bridge | GoF (Structural) | Decouple interface from platform/impl (TLS, DNS, IO backends). |
+| [x] | 20 | [Bridge](examples/bridge) | GoF (Structural) | Decouple interface from platform/impl (TLS, DNS, IO backends). |
 | [ ] | 21 | Composite | GoF (Structural) | Middleware chains / routing trees / filter graphs. |
 | [ ] | 22 | NVI (Non-Virtual Interface) | C++ idiom | Enforce invariants in extensible service components. |
 | [x] | 23 | [Traits/tag dispatch/(concepts-style selection)](examples/traits_tag_dispatch) | C++ idiom | Efficient generic code in serialization, hashing, parsing. |
