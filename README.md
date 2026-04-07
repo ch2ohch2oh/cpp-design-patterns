@@ -34,7 +34,7 @@ Tiny, realistic C++20 examples of common backend patterns and design patterns, e
 | [ ] | 20 | Bridge | GoF (Structural) | Decouple interface from platform/impl (TLS, DNS, IO backends). |
 | [ ] | 21 | Composite | GoF (Structural) | Middleware chains / routing trees / filter graphs. |
 | [ ] | 22 | NVI (Non-Virtual Interface) | C++ idiom | Enforce invariants in extensible service components. |
-| [ ] | 23 | Traits/tag dispatch/(concepts-style selection) | C++ idiom | Efficient generic code in serialization, hashing, parsing. |
+| [x] | 23 | [Traits/tag dispatch/(concepts-style selection)](examples/traits_tag_dispatch) | C++ idiom | Efficient generic code in serialization, hashing, parsing. |
 | [ ] | 24 | Visitor (often via `std::variant` + `std::visit`) | GoF (Behavioral) | Clean handling of protocol/message variants. |
 | [ ] | 25 | Flyweight | GoF (Structural) | Interning/shared immutable data to reduce memory in hot paths. |
 
