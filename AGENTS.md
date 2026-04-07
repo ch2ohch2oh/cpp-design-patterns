@@ -9,4 +9,4 @@
 ## Commits
 
 - Do not create commits unless the user explicitly asks.
-
+- Before committing changes that add/remove/rename patterns or example targets, update `README.md` so the pattern list (checkboxes/links) reflects the repo state.
