@@ -67,10 +67,3 @@ ls -1 ./build/examples/*/*_example
 git config core.hooksPath .githooks
 ```
 
-## Makefile shortcuts
-
-```sh
-make build
-make run-raii
-make format
-```
