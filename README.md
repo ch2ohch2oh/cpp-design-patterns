@@ -29,8 +29,8 @@ Tiny, realistic C++20 examples of common backend patterns and design patterns, e
 | [x] | 15 | [Type erasure](examples/type_erasure) | C++ idiom | Store heterogeneous callables/handlers without template bloat. |
 | [x] | 16 | [Observer (pub/sub)](examples/observer) | GoF (Behavioral) | Metrics/logging hooks and internal eventing (mind lifetimes). |
 | [x] | 17 | [State](examples/state) | GoF (Behavioral) | Connection/session/protocol state machines without giant `switch`. |
-| [ ] | 18 | Command | GoF (Behavioral) | Queueable jobs; background tasks; audit/redo semantics. |
-| [ ] | 19 | Pimpl | C++ idiom | Cuts rebuild times; hides heavy deps in service libraries. |
+| [x] | 18 | [Command](examples/command) | GoF (Behavioral) | Queueable jobs; background tasks; audit/redo semantics. |
+| [x] | 19 | [Pimpl](examples/pimpl) | C++ idiom | Cuts rebuild times; hides heavy deps in service libraries. |
 | [x] | 20 | [Bridge](examples/bridge) | GoF (Structural) | Decouple interface from platform/impl (TLS, DNS, IO backends). |
 | [x] | 21 | [Composite](examples/composite) | GoF (Structural) | Middleware chains / routing trees / filter graphs. |
 | [ ] | 22 | NVI (Non-Virtual Interface) | C++ idiom | Enforce invariants in extensible service components. |
