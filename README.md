@@ -36,7 +36,7 @@ Tiny, realistic C++20 examples of common backend patterns and design patterns, e
 | [x] | 22 | [NVI (Non-Virtual Interface)](examples/nvi) | C++ idiom | Enforce invariants in extensible service components. |
 | [x] | 23 | [Traits/tag dispatch/(concepts-style selection)](examples/traits_tag_dispatch) | C++ idiom | Efficient generic code in serialization, hashing, parsing. |
 | [x] | 24 | [Visitor](examples/visitor) (often via `std::variant` + `std::visit`) | GoF (Behavioral) | Clean handling of protocol/message variants. |
-| [ ] | 25 | Flyweight | GoF (Structural) | Interning/shared immutable data to reduce memory in hot paths. |
+| [x] | 25 | [Flyweight](examples/flyweight) | GoF (Structural) | Interning/shared immutable data to reduce memory in hot paths. |
 
 ## Build
 
